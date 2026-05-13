@@ -1,45 +1,107 @@
 # Traffic Light Recognition
 
-This repository contains the training configuration, inference scripts, and experiment notes for a YOLO-based traffic light / traffic sign recognition project.
+A YOLOv8-based traffic light and traffic sign detection project for model training, validation analysis, and competition-style submission generation.
 
-## Task
-Train an object detection model with the provided YOLO dataset and predict objects on the hidden-label test set.
+## Overview
 
-## Classes
-Green Light, Red Light, Speed Limit 10, Speed Limit 100, Speed Limit 110, Speed Limit 120, Speed Limit 20, Speed Limit 30, Speed Limit 40, Speed Limit 50, Speed Limit 60, Speed Limit 70, Speed Limit 80, Speed Limit 90, Stop
+This repository contains the core code and experiment materials for a traffic light recognition task built with Ultralytics YOLO. The project focuses on:
 
-## Files
-- `data.yaml`: Ultralytics training config
-- `baseline_infer.py`: basic inference-to-CSV script
-- `baseline_infer_debug.py`: debug version for inspecting predictions
-- `sample_submission.csv`: submission schema
-- `requirements.txt`: Python dependency list
-- `112304260116_zhangxiaomin.md`: experiment report
+- training an object detection model on a custom traffic dataset
+- evaluating model quality with mAP, precision, recall, and confusion matrices
+- generating a submission file for hidden-label test images
+- documenting the full experiment process and conclusions
 
-## Dataset
-The original `train/`, `val/`, and `test/` folders are not included in this GitHub repository because they are large local dataset files.
+## Highlights
 
-## Submission
-Submit one `submission.csv` file with these columns:
-- `image_id`
-- `class_id`
-- `x_center`
-- `y_center`
-- `width`
-- `height`
-- `confidence`
+- Model: `YOLOv8s`
+- Input size: `640`
+- Epochs: `80`
+- Optimizer: `AdamW`
+- Validation `mAP@0.5`: `0.968`
+- Validation `mAP@0.5:0.95`: `0.839`
+- Competition score: `0.9336`
+- Current ranking noted in report: `2`
 
-All coordinates must be YOLO-style normalized values in `[0, 1]`.
+## Detection Classes
 
-## Metric
-Ranking metric: `mAP@0.5`
+`Green Light`, `Red Light`, `Speed Limit 10`, `Speed Limit 20`, `Speed Limit 30`, `Speed Limit 40`, `Speed Limit 50`, `Speed Limit 60`, `Speed Limit 70`, `Speed Limit 80`, `Speed Limit 90`, `Speed Limit 100`, `Speed Limit 110`, `Speed Limit 120`, `Stop`
 
-## Example training
-```bash
-yolo detect train data=data.yaml model=yolov8n.pt epochs=50 imgsz=416
+## Repository Structure
+
+```text
+.
+├── baseline_infer.py
+├── baseline_infer_debug.py
+├── data.yaml
+├── requirements.txt
+├── sample_submission.csv
+├── 112304260116_zhangxiaomin.md
+└── assets/
+    └── report/
 ```
 
-## Example submission generation
+## Environment
+
+- Python `3.11`
+- PyTorch `2.5.1+cu121`
+- Ultralytics YOLO `8.4.49`
+- GPU: `NVIDIA GeForce RTX 3090`
+
+## Quick Start
+
+### 1. Install dependencies
+
 ```bash
-python baseline_infer.py --model runs/detect/train/weights/best.pt --test-dir test/images --output submission.csv
+pip install -r requirements.txt
 ```
+
+### 2. Train the model
+
+```bash
+yolo detect train data=data.yaml model=yolov8s.pt epochs=80 imgsz=640 batch=32 device=0 workers=8 patience=20 name=round1_yolov8s_640
+```
+
+### 3. Generate predictions for submission
+
+```bash
+python baseline_infer.py --model runs/detect/round1_yolov8s_640/weights/best.pt --test-dir test/images --output submission.csv
+```
+
+## Dataset Note
+
+The original `train/`, `val/`, `test/`, local weight files, and full training output folders are not committed to GitHub because they are large local assets. This repository keeps the code, configuration, report, and selected result visualizations needed for project presentation and reproduction.
+
+## Result Preview
+
+### Training Curves
+
+![Training curves](assets/report/results.png)
+
+### Confusion Matrix
+
+![Confusion matrix](assets/report/confusion_matrix.png)
+
+### Sample Predictions
+
+![Prediction example 1](assets/report/val_batch0_pred.jpg)
+![Prediction example 2](assets/report/val_batch1_pred.jpg)
+
+## Experiment Report
+
+The full experiment write-up is available here:
+
+- [112304260116_zhangxiaomin.md](112304260116_zhangxiaomin.md)
+
+## Core Files
+
+- `baseline_infer.py`: converts model predictions into the required CSV format
+- `baseline_infer_debug.py`: debugging helper for inspecting prediction results
+- `data.yaml`: dataset and class configuration for YOLO
+- `sample_submission.csv`: expected submission schema
+
+## Future Improvements
+
+- strengthen recognition of `Green Light` and `Red Light`
+- improve small-object detection for distant traffic signs
+- try larger backbones such as `YOLOv8m` or `YOLOv8l`
+- optimize data augmentation and hyperparameters for better generalization
