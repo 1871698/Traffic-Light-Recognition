@@ -1,0 +1,27 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.python-version
+.venv/
+venv/
+env/
+
+# Dataset
+train/
+val/
+test/
+
+# Training outputs
+runs/
+
+# Local model weights and generated results
+*.pt
+submission.csv
+
+# OS / editor
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
